@@ -1,0 +1,28 @@
+driver:
+  name: vagrant
+  customize:
+    cpus: 2
+    memory: 2048
+  synced_folders:
+    - ['.', '/home/vagrant/keystorm']
+
+provisioner:
+  name: chef_solo
+  require_chef_omnibus: 12.4.0
+
+platforms:
+  - name: ubuntu-16.04
+    run_list: apt::default
+  - name: centos-7
+    run_list: yum-epel::default
+
+suites:
+  - name: default
+    run_list:
+      - omnibus::default
+      - omnibus-build::default
+    attributes:
+      omnibus:
+        build_user:  vagrant
+        build_dir:   /home/vagrant/keystorm
+        install_dir: /opt/keystorm
