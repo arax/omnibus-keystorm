@@ -21,6 +21,9 @@ dependency 'keystorm'
 # Version manifest file
 dependency 'version-manifest'
 
+# add external (runtime) dependencies/services
+runtime_dependency 'memcached'
+
 # tweaking package-specific options
 package :deb do
   vendor 'CESNET, Grid Department <cloud@metacentrum.cz>'
