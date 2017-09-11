@@ -4,12 +4,42 @@
 # after package is uninstalled.
 #
 
-PROGNAME=$(basename $0)
+PROGNAME=`basename $0`
+INSTALLER_DIR=`dirname $0`
+USAGE="usage: $0"
 
-function error_exit
+DEST_DIR="/opt/keystorm"
+CONFIG_DIR="/etc/keystorm"
+CONFIG_FILE="${CONFIG_DIR}/keystorm.yml"
+LOG_DIR="/var/log/keystorm"
+SYSD_DIR="/etc/systemd/system"
+
+error_exit()
 {
   echo "${PROGNAME}: ${1:-"Unknown Error"}" 1>&2
   exit 1
 }
+
+if [ "X$1" = "Xpurge" ] || [ "X$1" = "X0" ]; then
+  if [ -d "$CONFIG_DIR" ]; then
+    rm -rf "$CONFIG_DIR" || error_exit "Could not unlink $CONFIG_DIR"
+  fi
+
+  if [ -d "$LOG_DIR" ]; then
+    rm -rf "$LOG_DIR" || error_exit "Could not unlink $LOG_DIR"
+  fi
+
+  if [ -d "$DEST_DIR" ]; then
+    rm -rf "$DEST_DIR" || error_exit "Could not unlink $DEST_DIR"
+  fi
+
+  for SD_FILE in ${SYSD_DIR}/keystorm.* ; do
+    if [ -L "$SD_FILE" ]; then
+      rm "$SD_FILE" || error_exit "Could not unlink $SD_FILE"
+    fi
+  done
+fi
+
+echo "Keystorm has been uninstalled!"
 
 exit 0
