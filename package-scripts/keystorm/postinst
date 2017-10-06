@@ -24,8 +24,7 @@ EMB_TMP_DIR="${EMB_DEST_DIR}/tmp"
 DEFAULT_CLOUD="opennebula"
 DEFAULT_LOG_LEVEL="warn"
 DEFAULT_HOST="127.0.0.1"
-DEFAULT_HOSTNAME="localhost"
-DEFAULT_PORT=5000
+DEFAULT_PORT=3000
 
 error_exit()
 {
@@ -82,6 +81,7 @@ export SECRET_KEY_BASE=$(head -c 69 /dev/urandom | base64 -w 0)
 # export HOST_CERT=/path/to/cert
 # export HOST_KEY=/path/to/key
 
+export KEYSTORM_ENDPOINT=https://$(hostname -f):5000/
 export KEYSTORM_CLOUD=$DEFAULT_CLOUD
 # export KEYSTORM_OPENNEBULA_ENDPOINT=http://localhost:2633/RPC2
 # export KEYSTORM_OPENNEBULA_SECRET=oneadmin:opennebula
@@ -89,12 +89,14 @@ export KEYSTORM_CLOUD=$DEFAULT_CLOUD
 
 export KEYSTORM_LOG_LEVEL=$DEFAULT_LOG_LEVEL
 
+# export KEYSTORM_EXPIRATION_WINDOW=28800
+export KEYSTORM_BEHIND_PROXY=true
+
 # export KEYSTORM_TOKEN_CIPHER=AES-128-CBC
 export KEYSTORM_TOKEN_KEY=$(head -c 69 /dev/urandom | base64 -w 0)
 export KEYSTORM_TOKEN_IV=$(head -c 69 /dev/urandom | base64 -w 0)
 
 # export KEYSTORM_OIDC_MATCHER="urn:mace:egi.eu:aai.egi.eu:{role}@{group}"
-# export KEYSTORM_VOMS_DEFAULT_EMAIL="root@localhost"
 # export KEYSTORM_CATALOG_ENDPOINTS_URL=https://localhost:11443/
 EOF
 

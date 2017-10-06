@@ -6,7 +6,7 @@ description 'Federated authentication component for rOCCI-server'
 # Defaults to C:/keystorm on Windows
 # and /opt/keystorm on all other platforms
 install_dir "#{default_root}/#{name}"
-build_version '1.0.0.alpha.1'
+build_version '1.0.0'
 build_iteration 1
 
 override :rubygems, :version => '2.6.8'
@@ -23,6 +23,13 @@ dependency 'version-manifest'
 
 # add external (runtime) dependencies/services
 runtime_dependency 'memcached'
+
+distro_deps = if File.exists? '/etc/redhat-release'
+                %w[httpd]
+              else
+                %w[apache2]
+              end
+distro_deps.each { |dep| runtime_dependency(dep) }
 
 # tweaking package-specific options
 package :deb do
