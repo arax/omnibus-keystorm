@@ -14,10 +14,14 @@ CONFIG_FILE="${CONFIG_DIR}/keystorm.yml"
 CONFIG_VARS="${CONFIG_DIR}/variables"
 LOG_DIR="/var/log/keystorm"
 SYSD_DIR="/etc/systemd/system"
+A2_DIR_RH="/etc/httpd"
+A2_DIR_DEB="/etc/apache2"
 
 EMB_DEST_DIR="${DEST_DIR}/embedded/app/keystorm"
 EMB_CONFIG_FILE="${EMB_DEST_DIR}/config/keystorm.yml"
 EMB_LOG_DIR="${EMB_DEST_DIR}/log"
+EMB_A2_DIR="${EMB_DEST_DIR}/examples/apache"
+EMB_A2_VHOST_FILE="${EMB_A2_DIR}/keystorm.conf"
 EMB_SYSD_DIR="${EMB_DEST_DIR}/examples/systemd"
 EMB_TMP_DIR="${EMB_DEST_DIR}/tmp"
 
@@ -98,6 +102,7 @@ export KEYSTORM_TOKEN_KEY=$(head -c 69 /dev/urandom | base64 -w 0)
 export KEYSTORM_TOKEN_IV=$(head -c 69 /dev/urandom | base64 -w 0)
 
 export KEYSTORM_OIDC_MATCHER="urn:mace:egi.eu:aai.egi.eu:{role}@{group}"
+# export KEYSTORM_FILTER_FILE=
 export KEYSTORM_CATALOG_ENDPOINTS_URL=https://${DEFAULT_HOSTNAME}:11443/
 EOF
 
@@ -110,12 +115,30 @@ if [ -d "$SYSD_DIR" ] && [ -d "$EMB_SYSD_DIR" ]; then
   for SD_FILE in ${EMB_SYSD_DIR}/* ; do
     if [ -f "$SD_FILE" ]; then
       ln -sf "$SD_FILE" "${SYSD_DIR}/" || error_exit "Could not link $SD_FILE into $SYSD_DIR"
-
-      # TODO: fix this in keystorm examples
-      sed -i "s/127.0.0.1:5000/$DEFAULT_HOST:3000/g" "$SD_FILE"
-      sed -i "s/0.0.0.0:5000/$DEFAULT_HOST:5000/g" "$SD_FILE"
+      sed -i "s/127.0.0.1:3000/$DEFAULT_HOST:$DEFAULT_PORT/g" "$SD_FILE"
     fi
   done
+fi
+
+# a2 integration
+if [ -f "/etc/redhat-release" ]; then
+  A2_DIR=$A2_DIR_RH
+else
+  A2_DIR=$A2_DIR_DEB
+fi
+
+if [ -d "$A2_DIR" ] && [ -f "$EMB_A2_VHOST_FILE" ]; then
+  A2_VHOST_FILE="${A2_DIR}/keystorm-ssl.conf"
+
+  if [ ! -f "$A2_VHOST_FILE" ]; then
+    cp "$EMB_A2_VHOST_FILE" "$A2_VHOST_FILE" || error_exit "Could not copy $EMB_A2_VHOST_FILE to $A2_VHOST_FILE"
+    chown root:root "$A2_VHOST_FILE" || error_exit "Could not change ownership of $A2_VHOST_FILE"
+    chmod 640 "$A2_VHOST_FILE" || error_exit "Could not change permissions on $A2_VHOST_FILE"
+
+    sed -i "s/keystorm:3000/$DEFAULT_HOST:$DEFAULT_PORT/g" "$SD_FILE"
+    sed -i "s/localhost:5000/*:5000/g" "$SD_FILE"
+    sed -i "s/ServerName localhost/ServerName $(hostname -f)/g" "$SD_FILE"
+  fi
 fi
 
 echo "Thank you for installing keystorm!"
