@@ -83,8 +83,6 @@ export RAILS_ENV=production
 export HOST=$DEFAULT_HOST
 export PORT=$DEFAULT_PORT
 export SECRET_KEY_BASE=$(head -c 69 /dev/urandom | base64 -w 0)
-# export HOST_CERT=/path/to/cert
-# export HOST_KEY=/path/to/key
 
 export KEYSTORM_ENDPOINT=https://${DEFAULT_HOSTNAME}:5000/
 export KEYSTORM_CLOUD=$DEFAULT_CLOUD
@@ -123,8 +121,10 @@ fi
 # a2 integration
 if [ -f "/etc/redhat-release" ]; then
   A2_DIR="${A2_DIR_RH}/conf.d"
+  A2_RH="yes"
 else
   A2_DIR="${A2_DIR_DEB}/sites-available"
+  A2_RH="no"
 fi
 
 if [ -d "$A2_DIR" ] && [ -f "$EMB_A2_VHOST_FILE" ]; then
@@ -138,6 +138,16 @@ if [ -d "$A2_DIR" ] && [ -f "$EMB_A2_VHOST_FILE" ]; then
     sed -i "s/keystorm:3000/$DEFAULT_HOST:$DEFAULT_PORT/g" "$A2_VHOST_FILE"
     sed -i "s/localhost:5000/*:5000/g" "$A2_VHOST_FILE"
     sed -i "s/ServerName localhost/ServerName $(hostname -f)/g" "$A2_VHOST_FILE"
+
+    if [ "x$A2_RH" = "xyes" ]; then
+      sed -i "s/apache/httpd/g" "$A2_VHOST_FILE"
+      echo -e "Listen 5000\n$(cat $A2_VHOST_FILE)" > "$A2_VHOST_FILE"
+    else
+      A2_PORTS_FILE="${A2_DIR_DEB}/ports.conf"
+      if ! grep -q "Listen 5000" "$A2_PORTS_FILE"; then
+        echo -e "\nListen 5000" >> "$A2_PORTS_FILE"
+      fi
+    fi
   fi
 fi
 

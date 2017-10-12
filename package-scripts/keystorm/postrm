@@ -14,6 +14,9 @@ CONFIG_FILE="${CONFIG_DIR}/keystorm.yml"
 LOG_DIR="/var/log/keystorm"
 SYSD_DIR="/etc/systemd/system"
 
+A2_DIR_RH="/etc/httpd"
+A2_DIR_DEB="/etc/apache2"
+
 error_exit()
 {
   echo "${PROGNAME}: ${1:-"Unknown Error"}" 1>&2
@@ -31,6 +34,20 @@ if [ "X$1" = "Xpurge" ] || [ "X$1" = "X0" ]; then
 
   if [ -d "$DEST_DIR" ]; then
     rm -rf "$DEST_DIR" || error_exit "Could not unlink $DEST_DIR"
+  fi
+
+  if [ -f "/etc/redhat-release" ]; then
+    rm -f "${A2_DIR_RH}/conf.d/keystorm-ssl.conf" || error_exit "Could not unlink httpd vhost file"
+  else
+    rm -f "${A2_DIR_DEB}/sites-available/keystorm-ssl.conf" || error_exit "Could not unlink apache2 vhost file"
+
+    A2_VHOST_LINK="${A2_DIR_DEB}/sites-enabled/keystorm-ssl.conf"
+    if [ -L "$A2_VHOST_LINK" ]; then
+      rm -f "$A2_VHOST_LINK" || error_exit "Could not unlink apache2 vhost file link"
+    fi
+
+    A2_PORTS_FILE="${A2_DIR_DEB}/ports.conf"
+    sed -i "s/Listen 5000/#Listen 5000/g" "$A2_PORTS_FILE"
   fi
 
   for SD_FILE in ${SYSD_DIR}/keystorm.* ; do
