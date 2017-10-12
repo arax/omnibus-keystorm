@@ -122,9 +122,9 @@ fi
 
 # a2 integration
 if [ -f "/etc/redhat-release" ]; then
-  A2_DIR=$A2_DIR_RH
+  A2_DIR="${A2_DIR_RH}/conf.d"
 else
-  A2_DIR=$A2_DIR_DEB
+  A2_DIR="${A2_DIR_DEB}/sites-available"
 fi
 
 if [ -d "$A2_DIR" ] && [ -f "$EMB_A2_VHOST_FILE" ]; then
@@ -135,9 +135,9 @@ if [ -d "$A2_DIR" ] && [ -f "$EMB_A2_VHOST_FILE" ]; then
     chown root:root "$A2_VHOST_FILE" || error_exit "Could not change ownership of $A2_VHOST_FILE"
     chmod 640 "$A2_VHOST_FILE" || error_exit "Could not change permissions on $A2_VHOST_FILE"
 
-    sed -i "s/keystorm:3000/$DEFAULT_HOST:$DEFAULT_PORT/g" "$SD_FILE"
-    sed -i "s/localhost:5000/*:5000/g" "$SD_FILE"
-    sed -i "s/ServerName localhost/ServerName $(hostname -f)/g" "$SD_FILE"
+    sed -i "s/keystorm:3000/$DEFAULT_HOST:$DEFAULT_PORT/g" "$A2_VHOST_FILE"
+    sed -i "s/localhost:5000/*:5000/g" "$A2_VHOST_FILE"
+    sed -i "s/ServerName localhost/ServerName $(hostname -f)/g" "$A2_VHOST_FILE"
   fi
 fi
 
