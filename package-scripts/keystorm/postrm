@@ -45,9 +45,6 @@ if [ "X$1" = "Xpurge" ] || [ "X$1" = "X0" ]; then
     if [ -L "$A2_VHOST_LINK" ]; then
       rm -f "$A2_VHOST_LINK" || error_exit "Could not unlink apache2 vhost file link"
     fi
-
-    A2_PORTS_FILE="${A2_DIR_DEB}/ports.conf"
-    sed -i "s/Listen 5000/#Listen 5000/g" "$A2_PORTS_FILE"
   fi
 
   for SD_FILE in ${SYSD_DIR}/keystorm.* ; do

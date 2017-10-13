@@ -20,10 +20,11 @@ A2_DIR_DEB="/etc/apache2"
 EMB_DEST_DIR="${DEST_DIR}/embedded/app/keystorm"
 EMB_CONFIG_FILE="${EMB_DEST_DIR}/config/keystorm.yml"
 EMB_LOG_DIR="${EMB_DEST_DIR}/log"
-EMB_A2_DIR="${EMB_DEST_DIR}/examples/apache"
-EMB_A2_VHOST_FILE="${EMB_A2_DIR}/keystorm.conf"
-EMB_SYSD_DIR="${EMB_DEST_DIR}/examples/systemd"
 EMB_TMP_DIR="${EMB_DEST_DIR}/tmp"
+
+EMB_A2_DIR="${DEST_DIR}/examples/apache2"
+EMB_SYSD_DIR="${DEST_DIR}/examples/systemd"
+EMB_A2_VHOST_FILE="${EMB_A2_DIR}/keystorm-ssl.conf"
 
 DEFAULT_CLOUD="opennebula"
 DEFAULT_LOG_LEVEL="warn"
@@ -135,18 +136,11 @@ if [ -d "$A2_DIR" ] && [ -f "$EMB_A2_VHOST_FILE" ]; then
     chown root:root "$A2_VHOST_FILE" || error_exit "Could not change ownership of $A2_VHOST_FILE"
     chmod 640 "$A2_VHOST_FILE" || error_exit "Could not change permissions on $A2_VHOST_FILE"
 
-    sed -i "s/keystorm:3000/$DEFAULT_HOST:$DEFAULT_PORT/g" "$A2_VHOST_FILE"
-    sed -i "s/localhost:5000/*:5000/g" "$A2_VHOST_FILE"
-    sed -i "s/ServerName localhost/ServerName $(hostname -f)/g" "$A2_VHOST_FILE"
+    sed -i "s/ServerName \[localhost\]/ServerName $DEFAULT_HOSTNAME/g" "$A2_VHOST_FILE"
+    sed -i "s/127.0.0.1:3000/$DEFAULT_HOST:$DEFAULT_PORT/g" "$A2_VHOST_FILE"
 
     if [ "x$A2_RH" = "xyes" ]; then
-      sed -i "s/apache/httpd/g" "$A2_VHOST_FILE"
-      echo -e "Listen 5000\n$(cat $A2_VHOST_FILE)" > "$A2_VHOST_FILE"
-    else
-      A2_PORTS_FILE="${A2_DIR_DEB}/ports.conf"
-      if ! grep -q "Listen 5000" "$A2_PORTS_FILE"; then
-        echo -e "\nListen 5000" >> "$A2_PORTS_FILE"
-      fi
+      sed -i "s/apache2/httpd/g" "$A2_VHOST_FILE"
     fi
   fi
 fi

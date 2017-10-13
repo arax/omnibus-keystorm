@@ -1,0 +1,18 @@
+[Unit]
+Description="Keystorm HTTPS Service"
+After=network.target
+Requires=keystorm.socket
+Requires=memcached.service
+
+[Service]
+Type=simple
+User=keystorm
+Group=keystorm
+PrivateTmp=true
+Restart=always
+
+ExecStart="/opt/keystorm/bin/keystorm"
+WorkingDirectory=/opt/keystorm/embedded/app/keystorm
+
+[Install]
+WantedBy=multi-user.target
