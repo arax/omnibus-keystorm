@@ -7,10 +7,10 @@ description 'Federated authentication component for rOCCI-server'
 # and /opt/keystorm on all other platforms
 install_dir "#{default_root}/#{name}"
 build_version '1.0.1'
-build_iteration 6
+build_iteration 7
 
 override :rubygems, :version => '2.6.8'
-override :ruby, :version => '2.4.1'
+override :ruby, :version => '2.4.2'
 
 # Creates required build directories
 dependency 'preparation'

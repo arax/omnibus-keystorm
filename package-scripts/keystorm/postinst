@@ -97,8 +97,8 @@ export KEYSTORM_LOG_LEVEL=$DEFAULT_LOG_LEVEL
 export KEYSTORM_BEHIND_PROXY=true
 
 export KEYSTORM_TOKEN_CIPHER=AES-128-CBC
-export KEYSTORM_TOKEN_KEY=$(head -c 69 /dev/urandom | base64 -w 0)
-export KEYSTORM_TOKEN_IV=$(head -c 69 /dev/urandom | base64 -w 0)
+export KEYSTORM_TOKEN_KEY=$(head -c 12 /dev/urandom | base64 -w 0)
+export KEYSTORM_TOKEN_IV=$(head -c 12 /dev/urandom | base64 -w 0)
 
 export KEYSTORM_OIDC_MATCHER="urn:mace:egi.eu:aai.egi.eu:{role}@{group}"
 # export KEYSTORM_FILTER_FILE=
