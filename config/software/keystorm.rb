@@ -1,5 +1,5 @@
 name 'keystorm'
-default_version 'v1.0.1'
+default_version 'v1.1.0'
 
 license "Apache-2.0"
 license_file "LICENSE"
